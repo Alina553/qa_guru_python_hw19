@@ -1,8 +1,6 @@
-import json
-
 import requests
 import jsonschema
-from tests.utils import load_schema
+from utils import load_schema
 
 
 def test_get_single_user_status_not_ok():
@@ -40,10 +38,51 @@ def test_post_register_successful():
     "password": "pistol"
     })
 
-    # with open('json_schemas/post_register.json') as file:
-    #     json_schema = json.loads(file.read())
-
     assert response.status_code == 200
     assert response.json()['id'] == 4
     jsonschema.validate(response.json(), schema)
 
+def test_delete_users():
+    response = requests.delete(url="https://reqres.in/api/users/2")
+
+    assert(response.status_code == 204)
+
+def test_post_create_user_successfull():
+
+    schema = load_schema('post_create_user.json')
+
+    response = requests.post(url='https://reqres.in/api/users', json = {
+    "name": "morpheus",
+    "job": "leader"
+    })
+
+    jsonschema.validate(response.json(), schema)
+    assert response.status_code == 201
+    assert response.json()['job'] == 'leader'
+
+def test_put_update_user():
+
+    schema = load_schema('post_update_user.json')
+
+    response = requests.put(url='https://reqres.in/api/users/2', json = {
+    "name": "morpheus",
+    "job": "zion resident"
+    })
+
+    jsonschema.validate(response.json(), schema)
+    assert response.status_code == 200
+    assert response.json()['name'] == 'morpheus'
+
+
+def test_patch_update_user():
+
+    schema = load_schema('post_update_user.json')
+
+    response = requests.put(url='https://reqres.in/api/users/2', json = {
+    "name": "morpheus",
+    "job": "zion resident"
+    })
+
+    jsonschema.validate(response.json(), schema)
+    assert response.status_code == 200
+    assert response.json()['job'] == 'zion resident'
